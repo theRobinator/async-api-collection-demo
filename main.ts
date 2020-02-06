@@ -3,6 +3,8 @@ import * as http from 'http';
 
 
 async function handleRequest(request: express.Request, response: express.Response) {
+    const startTime = Date.now();
+    
     // Fill up a JSON object with a bunch of API calls that return Promises like fetch() does
     const configWithPromises = {
         'field1': fakeAPICall(),
@@ -16,6 +18,8 @@ async function handleRequest(request: express.Request, response: express.Respons
     // Transform the Promises in the object into their return values
     const finalizedConfig = await resolvePromiseValues(configWithPromises);
     
+    finalizedConfig['totalTime'] = Date.now() - startTime;
+    
     // Write the resulting JSON out to the client
     response.writeHead(200, {'Content-Type': 'application/json'});
     response.write(JSON.stringify(finalizedConfig));
@@ -26,7 +30,7 @@ async function handleRequest(request: express.Request, response: express.Respons
 /**
  * Replace any Promise keys in a given object with their resolved values.
  */
-function resolvePromiseValues(config: {[key: string]: any}) {
+function resolvePromiseValues(config: {[key: string]: any}): Promise<{[key: string]: any}> {
     return new Promise((resolve) => {
         // Promise.all() short-circuits on a single failure, so we need to use counts here to wait for everything
         let neededCount = 0;
@@ -78,7 +82,7 @@ function fakeAPICall() {
 function fakeAPIFailure() {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            reject('This API call failed :(');
+            reject('This API call failed after 500ms :(');
         }, 500);
     });
 }
