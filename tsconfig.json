@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "lib": ["scripthost", "dom", "es2017"],
+        "strict": true
+    },
+    "files": ["main.ts"]
+}
